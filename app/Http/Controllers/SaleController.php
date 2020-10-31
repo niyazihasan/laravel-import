@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Sale, City};
+use App\Models\{City, Sale};
 
 class SaleController extends Controller
 {
@@ -115,7 +115,11 @@ class SaleController extends Controller
     private function parse_address($city_name, $address)
     {
         $matches = [];
-        $address_ = trim(str_replace([',', '.', 'ул', ' no', '№', 'гр', mb_strtolower($city_name)], '', mb_strtolower($address)));
+        $replacements = [
+            '/,/', '/\./', '/ул/ui', '/no/',
+            '/№/', '/гр/ui', "/$city_name/ui"
+        ];
+        $address_ = trim(preg_replace($replacements, '', mb_strtolower($address)));
         $pattern = '/^([\p{Cyrillic}]+\s+[\p{Cyrillic}]+)[\s]+([\d\-]+)[\s]*([\p{Cyrillic}]*)[\s]*([\d]*)$/u';
         preg_match($pattern, $address_, $matches);
         if ($matches) {
